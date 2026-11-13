@@ -65,6 +65,10 @@ Move or back up that folder and your library and places move with it.
 
 `LibraryApp.ico` (a stack of books) is the app's window icon; it is also in the folder as `bookstack.png`. `banner.png` is a small version of the Everyday Cool Tech Bench banner, meant to run across the top of the window.
 
+## Coming soon
+
+- **Optional home-server proxy for the web edition.** Project Gutenberg, Internet Archive and Standard Ebooks do not send the header that lets a web page fetch their book files, so the web edition currently hands those books to the sources' own readers. A tiny proxy script running on your own server (the app author's runs on PowellServer) would fetch the file server-side and pass it through, which takes that wall down: all six sources reading natively in the page, places saved, no hand-offs. Planned as an optional add-on for people who host the web edition themselves; the desktop app does not need it.
+
 ## Known issues
 
 - **The Tech Bench banner does not appear in the PyInstaller-built executable**, even though it loads in a plain script run and is baked into the bundle with `--add-data`. Marked as a bug and parked; see the issue tracker. The app runs fine without it.
