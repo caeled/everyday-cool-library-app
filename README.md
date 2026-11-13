@@ -6,12 +6,23 @@ An [Everyday Cool](https://github.com/caeled/everyday-cool) subproject.
 
 ## Web edition
 
-`web/index.html` is a hosted version of the same library: one static page, no server code, so it runs on any static host (GitHub Pages, a home server, Neocities). Search five of the six sources and read in the page.
-
-Two differences from the desktop app, both imposed by browser rules rather than choice:
+`web/index.html` is a hosted version of the same library: one static page, no server code, so it runs on any static host (GitHub Pages, a home server, Neocities).
 
 - **Wikibooks and Wikisource read natively in the page**, and so do EPUB files you open from your own device. Your library list and reading places are kept in the browser's local storage.
-- **Project Gutenberg, Internet Archive and Open Library will not let other pages fetch their book files** (the browser's CORS rule), so there the web edition searches and then hands you to the source's own reader: Archive and Open Library results read in an embedded Archive reader panel, Gutenberg results open at gutenberg.org. **Standard Ebooks** is not in the web edition at all, for the same reason.
+- **Project Gutenberg, Internet Archive and Open Library will not let other pages fetch their book files** (the browser's CORS rule). Without help, the web edition searches and then hands you to the source's own reader: Archive and Open Library results read in an embedded Archive reader panel, Gutenberg results open at gutenberg.org, and **Standard Ebooks** cannot be offered at all.
+- **With the home-server proxy running (below), that wall comes down**: all six sources read natively in the page, places saved, no hand-offs.
+
+### Home-server proxy (optional, for the web edition)
+
+`proxy/library-proxy.py` is a tiny fetch proxy (Python standard library only, like the app). Run it on the same machine that hosts the web edition:
+
+```
+python proxy/library-proxy.py          (or double-click proxy/library-proxy.bat)
+```
+
+It listens on port 8766. The web page checks its own host on that port automatically; when the proxy answers, Gutenberg, Archive and Open Library books are fetched through it and read in the page, and the Standard Ebooks source switches on. If you run the proxy on a different host or port, set the page's `ecl_proxy` localStorage key to its base URL (for example `http://myserver:8766`).
+
+The proxy only fetches from the library's own book sources (an allowlist in the script), and it is meant for your own home network. Do not expose it to the open internet. The desktop app does not need it.
 
 ## Sources
 
@@ -64,10 +75,6 @@ Move or back up that folder and your library and places move with it.
 ## Icon and banner
 
 `LibraryApp.ico` (a stack of books) is the app's window icon; it is also in the folder as `bookstack.png`. `banner.png` is a small version of the Everyday Cool Tech Bench banner, meant to run across the top of the window.
-
-## Coming soon
-
-- **Optional home-server proxy for the web edition.** Project Gutenberg, Internet Archive and Standard Ebooks do not send the header that lets a web page fetch their book files, so the web edition currently hands those books to the sources' own readers. A tiny proxy script running on your own server (the app author's runs on PowellServer) would fetch the file server-side and pass it through, which takes that wall down: all six sources reading natively in the page, places saved, no hand-offs. Planned as an optional add-on for people who host the web edition themselves; the desktop app does not need it.
 
 ## Known issues
 
