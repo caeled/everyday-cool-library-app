@@ -4,6 +4,15 @@ One of the very Everyday Cool things about the intenet is the vast number of fre
 
 An [Everyday Cool](https://github.com/caeled/everyday-cool) subproject.
 
+## Web edition
+
+`web/index.html` is a hosted version of the same library: one static page, no server code, so it runs on any static host (GitHub Pages, a home server, Neocities). Search five of the six sources and read in the page.
+
+Two differences from the desktop app, both imposed by browser rules rather than choice:
+
+- **Wikibooks and Wikisource read natively in the page**, and so do EPUB files you open from your own device. Your library list and reading places are kept in the browser's local storage.
+- **Project Gutenberg, Internet Archive and Open Library will not let other pages fetch their book files** (the browser's CORS rule), so there the web edition searches and then hands you to the source's own reader: Archive and Open Library results read in an embedded Archive reader panel, Gutenberg results open at gutenberg.org. **Standard Ebooks** is not in the web edition at all, for the same reason.
+
 ## Sources
 
 Tick any combination at the top, type a title or author, hit Search.
