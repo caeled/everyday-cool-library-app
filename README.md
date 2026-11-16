@@ -55,12 +55,18 @@ Double-click **LibraryApp.bat** (or run `python LibraryApp.py`).
 
 ## Build a Windows executable
 
+Double-click **build.bat** (or run it from a Command Prompt in this folder). It installs PyInstaller, builds from `LibraryApp.py` with the banner and icon baked in, and checks that `banner.png` made it into the bundle. The command it runs is:
+
 ```
-python -m pip install pyinstaller
-pyinstaller --noconfirm --windowed --icon LibraryApp.ico --name LibraryApp --add-data "banner.png;." --add-data "LibraryApp.ico;." LibraryApp.py
+python -m PyInstaller --noconfirm --clean --windowed --icon LibraryApp.ico --name LibraryApp --add-data "banner.png;." --add-data "LibraryApp.ico;." LibraryApp.py
 ```
 
-You get `dist\LibraryApp\LibraryApp.exe`. Books and reading places live in a `LibraryData` folder next to the exe, so they survive rebuilds.
+You get `dist\LibraryApp\LibraryApp.exe`. Run that one (with its `_internal` folder beside it), not the copy under `build\`. Books and reading places live in a `LibraryData` folder next to the exe.
+
+Two things to know when rebuilding:
+
+- **Do not build with `pyinstaller LibraryApp.spec`.** A `.spec` file left over from an earlier build keeps that build's data list and ignores `--add-data`, so the banner can drop out. `build.bat` deletes any old spec first.
+- **PyInstaller wipes `dist\LibraryApp` on every build, `LibraryData` included.** `build.bat` moves `LibraryData` aside and puts it back afterwards. If you run the PyInstaller command by hand, copy `LibraryData` out first.
 
 ## Where things live
 
@@ -78,7 +84,7 @@ Move or back up that folder and your library and places move with it.
 
 ## Known issues
 
-- **The Tech Bench banner does not appear in the PyInstaller-built executable**, even though it loads in a plain script run and is baked into the bundle with `--add-data`. Marked as a bug and parked; see the issue tracker. The app runs fine without it.
+- **The Tech Bench banner does not appear in the PyInstaller-built executable** ([#1](https://github.com/caeled/everyday-cool-library-app/issues/1)). Rebuild with `build.bat`. If the banner is still missing, the app now writes the reason (where it looked, or why the image would not load) to `LibraryData\app.log` instead of skipping it silently.
 
 ## Licenses
 

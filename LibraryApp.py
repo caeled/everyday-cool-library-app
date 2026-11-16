@@ -66,16 +66,49 @@ BROWSER_UA = (
 # small helpers
 # --------------------------------------------------------------------------
 
-def resource_path(name):
-    """Find a file that ships with the app (banner, icon). In a
-    PyInstaller build those live in the bundle (sys._MEIPASS); in a
-    plain script run they sit next to the script or the exe."""
+def resource_candidates(name):
+    """Every place a file that ships with the app (banner, icon) may sit:
+    the PyInstaller bundle (sys._MEIPASS: the _internal folder in a
+    one-folder build, a temp folder in a one-file build), next to the
+    exe or script, and an _internal folder next to the exe."""
+    places = []
     bundle = getattr(sys, "_MEIPASS", None)
     if bundle:
-        candidate = os.path.join(bundle, name)
-        if os.path.exists(candidate):
-            return candidate
-    return os.path.join(BASE_DIR, name)
+        places.append(bundle)
+    places.append(BASE_DIR)
+    places.append(os.path.join(BASE_DIR, "_internal"))
+    places.append(os.path.dirname(os.path.abspath(__file__)))
+    seen, out = set(), []
+    for d in places:
+        c = os.path.join(d, name)
+        key = os.path.normcase(os.path.abspath(c))
+        if key not in seen:
+            seen.add(key)
+            out.append(c)
+    return out
+
+
+def resource_path(name):
+    """Path of a file that ships with the app; the first candidate that
+    exists, else the first candidate (so callers get a sensible path to
+    report)."""
+    cands = resource_candidates(name)
+    for c in cands:
+        if os.path.exists(c):
+            return c
+    return cands[0]
+
+
+def log_problem(msg):
+    """Append a line to LibraryData/app.log. Used for things the app
+    shrugs off (missing banner, icon) so a windowed exe, which has no
+    console, still leaves a trace of why."""
+    try:
+        os.makedirs(DATA_DIR, exist_ok=True)
+        with open(os.path.join(DATA_DIR, "app.log"), "a", encoding="utf-8") as f:
+            f.write(time.strftime("%Y-%m-%d %H:%M:%S ") + msg.rstrip() + "\n")
+    except Exception:
+        pass
 
 
 def ensure_dirs():
@@ -1287,23 +1320,32 @@ def run_gui():
     root.title(APP_NAME)
     try:
         root.iconbitmap(resource_path("LibraryApp.ico"))
-    except Exception:
-        pass
+    except Exception as e:
+        if os.name == "nt":  # .ico window icons are a Windows thing
+            log_problem("window icon did not load: %r" % (e,))
     root.geometry("1080x720")
     root.minsize(820, 520)
 
     jobs = queue.Queue()
 
     # Tech Bench banner across the top, when the image ships with the app.
+    # Never fatal, but never silent either: a windowed exe has no console,
+    # so anything that stops the banner goes to LibraryData/app.log.
     banner_path = resource_path("banner.png")
-    if os.path.exists(banner_path):
+    if not os.path.exists(banner_path):
+        log_problem(
+            "banner.png not found (frozen=%s). Looked in: %s"
+            % (getattr(sys, "frozen", False),
+               "; ".join(resource_candidates("banner.png"))))
+    else:
         try:
-            banner_img = tk.PhotoImage(file=banner_path)
+            banner_img = tk.PhotoImage(master=root, file=banner_path)
             banner_lbl = tk.Label(root, image=banner_img, bg="#171008", bd=0)
             banner_lbl.image = banner_img  # keep a reference alive
             banner_lbl.pack(side=tk.TOP, fill=tk.X)
-        except Exception:
-            pass
+        except Exception as e:
+            log_problem("banner.png found at %s but did not load (Tk %s): %r"
+                        % (banner_path, tk.TkVersion, e))
 
     state = {
         "mode": "library",          # or "search"
