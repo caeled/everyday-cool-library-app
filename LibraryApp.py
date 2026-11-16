@@ -1347,6 +1347,40 @@ def run_gui():
             log_problem("banner.png found at %s but did not load (Tk %s): %r"
                         % (banner_path, tk.TkVersion, e))
 
+    # Help menu: Documentation shows the bundled README; About is a one-liner.
+    def show_documentation():
+        try:
+            with open(resource_path("README.md"), encoding="utf-8") as fh:
+                doc_text = fh.read()
+        except Exception as exc:
+            doc_text = f"The bundled documentation could not be opened.\n\n{exc}"
+        win = tk.Toplevel(root)
+        win.title(f"{APP_NAME} - Documentation")
+        win.geometry("780x640")
+        doc_box = tk.Text(win, wrap="word")
+        doc_scroll = ttk.Scrollbar(win, orient="vertical", command=doc_box.yview)
+        doc_box.configure(yscrollcommand=doc_scroll.set)
+        doc_scroll.pack(side=tk.RIGHT, fill=tk.Y)
+        doc_box.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        doc_box.insert("1.0", doc_text)
+        doc_box.configure(state="disabled")
+
+    def show_about():
+        messagebox.showinfo(
+            f"About {APP_NAME}",
+            f"{APP_NAME}\n\nA simple personal library for Windows. Search six open "
+            "libraries, download EPUBs, read them in a plain reader, and pick up "
+            "right where you left off.",
+        )
+
+    menubar = tk.Menu(root)
+    help_menu = tk.Menu(menubar, tearoff=0)
+    help_menu.add_command(label="Documentation", command=show_documentation)
+    help_menu.add_separator()
+    help_menu.add_command(label=f"About {APP_NAME}", command=show_about)
+    menubar.add_cascade(label="Help", menu=help_menu)
+    root.config(menu=menubar)
+
     state = {
         "mode": "library",          # or "search"
         "items": [],                # rows backing the left list
