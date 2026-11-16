@@ -28,7 +28,7 @@ if exist "dist\LibraryApp\LibraryData" (
 if exist LibraryApp.spec del LibraryApp.spec
 if exist build rmdir /s /q build
 
-python -m PyInstaller --noconfirm --clean --windowed --icon LibraryApp.ico --name LibraryApp --add-data "banner.png;." --add-data "LibraryApp.ico;." LibraryApp.py
+python -m PyInstaller --noconfirm --clean --windowed --icon LibraryApp.ico --name LibraryApp --add-data "banner.png;." --add-data "LibraryApp.ico;." --add-data "README.md;." LibraryApp.py
 set "BUILD_RESULT=%errorlevel%"
 
 if exist "%SAVED%" (
@@ -48,6 +48,14 @@ if exist "dist\LibraryApp\_internal\banner.png" (
   echo OK: banner.png is in dist\LibraryApp
 ) else (
   echo WARNING: banner.png is not in the build output.
+  exit /b 1
+)
+if exist "dist\LibraryApp\_internal\README.md" (
+  echo OK: README.md is in dist\LibraryApp\_internal
+) else if exist "dist\LibraryApp\README.md" (
+  echo OK: README.md is in dist\LibraryApp
+) else (
+  echo WARNING: README.md is not in the build output.
   exit /b 1
 )
 echo Done: dist\LibraryApp\LibraryApp.exe
